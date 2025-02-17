@@ -76,11 +76,10 @@ if g_libDirPath not in sys.path:
 import dataShow as DataShow
 import stockTicker as StockTicker
 import stockTickerYahoo as StockTickerYahoo
-import stockRobot as StockRobot
 import fileTemplate as FileTemplate
 
 
-g_ResultFileDir = "/home/ddean/ddRoot/PublicHTMLStaging/"
+g_ResultFileDir = "/home/ddean/ddRoot/finLib/"
 
 STAT_SCORE_CORRELATION_WITH_PRICE_T1 = "corrPriceT1"
 STAT_SCORE_CORRELATION_WITH_PRICE_T4 = "corrPriceT4"
@@ -147,7 +146,8 @@ if (True):
 
     # Make the report
     g_Report.SetBodyStr("Collected " + startimeStr)
-    g_Report.AddHTMLTableRowToDoc([ "<b>Stock</b>", "<b>Price</b>", "<b>Price Change</b>", "<b>RSI</b>", "<b>Stochastic</b>", "<b>MACD</b>", "<b>PEG</b>", "<b>Bid-Ask Spread</b>"])
+    g_Report.AddHTMLTableRowToDoc([ "<b>Stock</b>", "<b>Price</b>", "<b>Price Change</b>", "<b>RSI</b>", "<b>Stochastic</b>", "<b>MACD</b>", "<b>PEG</b>"])
+    # , "<b>Bid-Ask Spread</b>"
 
     for index, (tickerName, stockInfo) in enumerate(g_StockTickerList.items()):
         tickerSymbolStr = stockInfo.GetStockSymbol()
@@ -173,8 +173,9 @@ if (True):
                 g_Report.MakeColoredTableCellStr(rsiScore, FileTemplate.LESS_THAN, 30, FileTemplate.GREATER_THAN, 70),
                 g_Report.MakeColoredTableCellStr(kStoScore, FileTemplate.LESS_THAN, 20, FileTemplate.GREATER_THAN, 80),
                 g_Report.MakeColoredTableCellStr(macdScore, FileTemplate.GREATER_THAN, 0, FileTemplate.LESS_THAN, 0),
-                g_Report.MakeColoredTableCellStr(pegScore, FileTemplate.LESS_THAN, 1, FileTemplate.GREATER_THAN, 1),
-                bidAskStr] )
+                g_Report.MakeColoredTableCellStr(pegScore, FileTemplate.LESS_THAN, 1, FileTemplate.GREATER_THAN, 1)
+                ] )
+                # bidAskStr
 
         # Make the Javascript table
         g_Report.AddJavascriptTableRow([ {"Name": "Name", "Value": stockInfo.GetStockSymbol() }, 
@@ -188,7 +189,7 @@ if (True):
                         {"Name": "MACD", "Value": macdScore } ])
     # End - for stockInfo in g_StockTickerList:
 
-    g_Report.MakeFileFromTemplate("/home/ddean/ddRoot/homePage/stockTemplate.htm", 
+    g_Report.MakeFileFromTemplate("/home/ddean/ddRoot/finLib/stockTemplate.htm", 
                                     g_ResultFileDir + "stockReport.htm")
 
 # End - if (True)

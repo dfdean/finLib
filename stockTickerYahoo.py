@@ -138,22 +138,19 @@ def LoadTickerFromYahoo(stockTicker):
     try:
         stockTicker.SetTrailingPE(tickerInfo['trailingPE'])
     except Exception:
-        stockTicker.SetTrailingPE(-1)
+        stockTicker.SetTrailingPE(0)
     #########################
     try:
         stockTicker.SetForwardPE(tickerInfo['forwardPE'])
     except Exception:
-        stockTicker.SetForwardPE(-1)
+        stockTicker.SetForwardPE(0)
     #########################
-    try:
+    if (('bid' in tickerInfo) and ('ask' in tickerInfo)):
         stockTicker.SetBid(tickerInfo['bid'])
-    except Exception:
-        stockTicker.SetBid(-1)
-    #########################
-    try:
         stockTicker.SetAsk(tickerInfo['ask'])
-    except Exception:
-        stockTicker.SetAsk(-1)
+    else:
+        stockTicker.SetBid(0)
+        stockTicker.SetAsk(0)
     #########################
     try:
         stockTicker.SetFiftyTwoWeekLow(tickerInfo['fiftyTwoWeekLow'])
@@ -165,9 +162,11 @@ def LoadTickerFromYahoo(stockTicker):
         print("Caught Exception 3")
         return fSuccess, fRetry
     #########################
-    try:
+    if ('pegRatio' in tickerInfo):
         stockTicker.SetPEGRatio(tickerInfo['pegRatio'])
-    except Exception:
+    elif ('trailingPegRatio' in tickerInfo):
+        stockTicker.SetPEGRatio(tickerInfo['trailingPegRatio'])
+    else:
         stockTicker.SetPEGRatio(0)
 
     #######################

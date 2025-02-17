@@ -493,6 +493,10 @@ class CStockTicker(object):
     # [CStockTicker::SetPEGRatio
     #####################################################
     def SetPEGRatio(self, value):
+        # Some stocks allow a "None" for this value.
+        if (value is None):
+            value = 0
+        #print("SetPEGRatio " + self.tickerSymbol + "value=" + str(value))
         self.PEGRatio = value
 
     #####################################################
@@ -521,7 +525,6 @@ class CStockTicker(object):
     #####################################################
     def ComputeAllStats(self):
         fDebug = False
-
         if (fDebug):
             print("ComputeAllStats")
 
@@ -549,15 +552,6 @@ class CStockTicker(object):
 
             newestPriceIndex = newestPriceIndex - 1
         # End - for index in range(numPastPrices):
-
-        # Now, compute the covariance for each stat, which correlates the list of stats with 
-        # a synchronized list of future prices
-        # self.m_RSICovariances = self.ComputeCovarianceForOneStat('RSI')
-        # self.EMA12Covariances = self.ComputeCovarianceForOneStat('EMA12')
-        # self.EMA26Covariances = self.ComputeCovarianceForOneStat('EMA26')
-        # self.MACDCovariances = self.ComputeCovarianceForOneStat('MACD')
-        # self.kStochasticCovariances = self.ComputeCovarianceForOneStat('KStochastic')
-        # self.BiggestRecentDropPercentCovariances = self.ComputeCovarianceForOneStat('BiggestRecentDropPercent')
     # End - ComputeAllStats(self)
 
 
@@ -724,6 +718,7 @@ class CStockTicker(object):
 
 
     #####################################################
+    #
     # [CStockTicker::ComputeRSI]
     #
     # References:
@@ -749,39 +744,47 @@ class CStockTicker(object):
             percentChange = float(deltaVal / oldVal) * 100.0
             percentChangeList[index - 1] = percentChange
             if (fDebug):
-                print("index = " + str(index) + ", percentChange = " + str(percentChange))
+                print("index = " + str(index) + ": oldVal=" + str(oldVal) + ", newVal=" + str(newVal) + ", percentChange = " + str(percentChange))
         # End - for index in range(numPriceChanges):
 
         if (fDebug):
             print("ComputeRSI. percentChangeList=" + str(percentChangeList))
 
+        numGains = 0
+        numLosses = 0
         for index in range(numPriceChanges):
             percentChange = percentChangeList[index]
             if (percentChange > 0):
                 percentGainList[index] = percentChange
+                numGains += 1
             else:
                 percentLossList[index] = -percentChange
+                numLosses += 1
         # End - for index in range(numPriceChanges):
 
         if (fDebug):
             print("ComputeRSI. percentGainList=" + str(percentGainList))
             print("ComputeRSI. percentLossList=" + str(percentLossList))
 
-        if (numPriceChanges > 0):
-            avgPercentGain = sum(percentGainList) / numPriceChanges
-            avgPercentLoss = sum(percentLossList) / numPriceChanges
+        if (numGains > 0):
+            avgPercentGain = sum(percentGainList) / numGains
         else:
             avgPercentGain = 0
+        if (numLosses > 0):
+            avgPercentLoss = sum(percentLossList) / numLosses
+        else:
             avgPercentLoss = 0
+
         if (fDebug):
             print("ComputeRSI. avgPercentGain=" + str(avgPercentGain))
             print("ComputeRSI. avgPercentLoss=" + str(avgPercentLoss))
 
         if (avgPercentLoss == 0):
-            relativeStrength = 0.0
+            relativeStrength = 100.0
+            relativeStrengthIndex = 100.0
         else:
             relativeStrength = avgPercentGain / avgPercentLoss
-        relativeStrengthIndex = 100.0 - (100.0 / (1.0 + relativeStrength))
+            relativeStrengthIndex = 100.0 - (100.0 / (1.0 + relativeStrength))
         if (fDebug):
             print("ComputeRSI. relativeStrength=" + str(relativeStrength))
             print("ComputeRSI. relativeStrengthIndex=" + str(relativeStrengthIndex))
